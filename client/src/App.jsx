@@ -15,12 +15,27 @@ import SetPasswordModal from './components/SetPasswordModal';
 import MainLayout from './components/MainLayout';
 import useAuthStore from './store/useAuthStore';
 
+import api from './config/api';
+
 function App() {
   const { isAuthenticated, fetchUser } = useAuthStore();
 
   useEffect(() => {
     // Try to fetch user on app load (only once)
     fetchUser();
+
+    // Warm up backend on app mount (for Render free tier)
+    const warmUpBackend = async () => {
+      try {
+        await api.get('/health');
+        console.log('Backend warmed up!');
+      } catch (error) {
+        // Ignore errors, just trying to wake it up
+        console.log('Backend warming up...');
+      }
+    };
+    warmUpBackend();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array - only run once on mount
 
